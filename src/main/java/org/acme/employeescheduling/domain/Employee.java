@@ -7,8 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 
-import javax.persistence.Column;
-
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 
 @Entity
@@ -17,22 +15,14 @@ public class Employee {
     @PlanningId
     String name;
 
-    // @ElementCollection(fetch = FetchType.EAGER)
-    // Set<String> skillSet;
-
-    @Column
-    String skillSet;
+    @ElementCollection(fetch = FetchType.EAGER)
+    Set<String> skillSet;
 
     public Employee() {
 
     }
 
-    // public Employee(String name, Set<String> skillSet) {
-    //     this.name = name;
-    //     this.skillSet = skillSet;
-    // }
-
-    public Employee(String name, String skillSet) {
+    public Employee(String name, Set<String> skillSet) {
         this.name = name;
         this.skillSet = skillSet;
     }
@@ -45,19 +35,11 @@ public class Employee {
         this.name = name;
     }
 
-    // public Set<String> getSkillSet() {
-    //     return skillSet;
-    // }
-
-    public String getSkillSet() {
+    public Set<String> getSkillSet() {
         return skillSet;
     }
 
-    // public void setSkillSet(Set<String> skillSet) {
-    //     this.skillSet = skillSet;
-    // }
-
-    public void setSkillSet(String skillSet) {
+    public void setSkillSet(Set<String> skillSet) {
         this.skillSet = skillSet;
     }
 

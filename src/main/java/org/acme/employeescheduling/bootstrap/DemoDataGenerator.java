@@ -46,16 +46,11 @@ public class DemoDataGenerator {
         LARGE
     }
 
-    static final String[] FIRST_NAMES = { "Amy", "Beth", "Chad", "Dan", "Elsa", "Flo", "Gus", "Hugo", "Ivy", "Jay" };
-    static final String[] LAST_NAMES = { "Cole", "Fox", "Green", "Jones", "King", "Li", "Poe", "Rye", "Smith", "Watt" };
-    static final String[] NAMES = { "Khalid Aldaas", "Uzo Davis Anugo", "Rebecca Li", "Ryan Machiele",
-            "Vikram Ponnusamy", "Luke Ford", "Allison Harmel", "Patrick Le", "Brian Wogu", "Bryce DeChamplain",
-            "Pooja Shah", "Vincent Tang" };
-    static final String[] YEARS = { "PGY-4", "PGY-4", "PGY-4", "PGY-4", "PGY-4", "PGY-4", "PGY-4", "PGY-4", "PGY-4",
-            "PGY-4", "PGY-4", "PGY-4" };
-    static final String[] REQUIRED_SKILLS = { "PGY-4", "PGY-3", "PGY-2" };
-    static final String[] OPTIONAL_SKILLS = { "PGY-3", "PGY-2" };
-    static final String[] LOCATIONS = { "Primary Call", "Secondary Call" };
+    static final String[] FIRST_NAMES = {"Amy", "Beth", "Chad", "Dan", "Elsa", "Flo", "Gus", "Hugo", "Ivy", "Jay"};
+    static final String[] LAST_NAMES = {"Cole", "Fox", "Green", "Jones", "King", "Li", "Poe", "Rye", "Smith", "Watt"};
+    static final String[] REQUIRED_SKILLS = { "Doctor", "Nurse"};
+    static final String[] OPTIONAL_SKILLS = { "Anaesthetics", "Cardiology"};
+    static final String[] LOCATIONS = { "Ambulatory care", "Critical care", "Pediatric care"};
     static final Duration SHIFT_LENGTH = Duration.ofHours(8);
     static final LocalTime MORNING_SHIFT_START_TIME = LocalTime.of(6, 0);
     static final LocalTime DAY_SHIFT_START_TIME = LocalTime.of(9, 0);
@@ -63,12 +58,12 @@ public class DemoDataGenerator {
     static final LocalTime NIGHT_SHIFT_START_TIME = LocalTime.of(22, 0);
 
     static final LocalTime[][] SHIFT_START_TIMES_COMBOS = {
-            { MORNING_SHIFT_START_TIME, AFTERNOON_SHIFT_START_TIME },
-            { MORNING_SHIFT_START_TIME, AFTERNOON_SHIFT_START_TIME, NIGHT_SHIFT_START_TIME },
-            { MORNING_SHIFT_START_TIME, DAY_SHIFT_START_TIME, AFTERNOON_SHIFT_START_TIME, NIGHT_SHIFT_START_TIME },
+            {MORNING_SHIFT_START_TIME, AFTERNOON_SHIFT_START_TIME},
+            {MORNING_SHIFT_START_TIME, AFTERNOON_SHIFT_START_TIME, NIGHT_SHIFT_START_TIME},
+            {MORNING_SHIFT_START_TIME, DAY_SHIFT_START_TIME, AFTERNOON_SHIFT_START_TIME, NIGHT_SHIFT_START_TIME},
     };
 
-    Map<String, List<LocalTime>> locationToShiftStartTimeListMap = new HashMap<>();
+    Map<String,List<LocalTime>> locationToShiftStartTimeListMap = new HashMap<>();
 
     @Inject
     EmployeeRepository employeeRepository;
@@ -104,51 +99,17 @@ public class DemoDataGenerator {
         if (demoData == DemoData.NONE) {
             return;
         }
-
-        // List<String> namePermutations = joinAllCombinations(FIRST_NAMES, LAST_NAMES);
-        // Collections.shuffle(namePermutations, random);
-
-        // List<String> namePermutations = NAMES;
-        // Collections.shuffle(namePermutations, random);
-
-        List<String> namePermutations = new ArrayList<>();
-        namePermutations.add("Khalid Aldaas");
-        namePermutations.add("Uzo Davis Anugo");
-        namePermutations.add("Rebecca Li");
-        namePermutations.add("Ryan Machiele");
-        namePermutations.add("Vikram Ponnusamy");
-        namePermutations.add("Luke Ford");
-        namePermutations.add("Allison Harmel");
-        namePermutations.add("Patrick Le");
-        namePermutations.add("Brian Wogu");
-        namePermutations.add("Bryce DeChamplain");
-        namePermutations.add("Pooja Shah");
-        namePermutations.add("Vincent Tang");
-        namePermutations.add("Jason Zehden");
-        namePermutations.add("Dipen Kumar");
-        namePermutations.add("Karen Lee");
+        List<String> namePermutations = joinAllCombinations(FIRST_NAMES, LAST_NAMES);
+        Collections.shuffle(namePermutations, random);
 
         List<Employee> employeeList = new ArrayList<>();
-        // for (int i = 0; i < 12; i++) {
-        //     Set<String> skills = pickSubset(List.of(OPTIONAL_SKILLS), random, 1);
-        //     // String skills = YEARS[i];
-        //     skills.add(pickRandom(REQUIRED_SKILLS, random));
-        //     Employee employee = new Employee(namePermutations.get(i), skills);
-        //     employeeRepository.persist(employee);
-        //     employeeList.add(employee);
-        // }
-
-        for (int i = 0; i < NAMES.length; i++) {
-        Employee employee = new Employee(NAMES[i],YEARS[i]);
-
-        employeeRepository.persist(employee);
-        employeeList.add(employee);
-        // System.out.println(employee.getName());
-        // System.out.println(employee.getSkillSet());
+        for (int i = 0; i < 15; i++) {
+            Set<String> skills = pickSubset(List.of(OPTIONAL_SKILLS), random, 3, 1);
+            skills.add(pickRandom(REQUIRED_SKILLS, random));
+            Employee employee = new Employee(namePermutations.get(i), skills);
+            employeeRepository.persist(employee);
+            employeeList.add(employee);
         }
-
-        // List<Employee> employeeList = new ArrayList<>();
-        // employeeList.add
 
         for (int i = 0; i < INITIAL_ROSTER_LENGTH_IN_DAYS; i++) {
             Set<Employee> employeesWithAvailabitiesOnDay = pickSubset(employeeList, random, 4, 3, 2, 1);
@@ -156,15 +117,11 @@ public class DemoDataGenerator {
             for (Employee employee : employeesWithAvailabitiesOnDay) {
                 AvailabilityType availabilityType = pickRandom(AvailabilityType.values(), random);
                 availabilityRepository.persist(new Availability(employee, date, availabilityType));
-
             }
 
             generateShiftsForDay(date, random);
         }
-
-
     }
-
 
     private void generateShiftsForDay(LocalDate date, Random random) {
         for (String location : LOCATIONS) {
@@ -178,7 +135,7 @@ public class DemoDataGenerator {
     }
 
     private void generateShiftForTimeslot(LocalDateTime timeslotStart, LocalDateTime timeslotEnd, String location,
-            Random random) {
+                                          Random random) {
         int shiftCount = 1;
 
         if (random.nextDouble() > 0.9) {
@@ -187,15 +144,14 @@ public class DemoDataGenerator {
         }
 
         for (int i = 0; i < shiftCount; i++) {
-            String requiredSkill = "PGY-4";
-            // if (random.nextBoolean()) {
-            // requiredSkill = pickRandom(REQUIRED_SKILLS, random);
-            // } else {
-            // requiredSkill = pickRandom(OPTIONAL_SKILLS, random);
-            // }
+            String requiredSkill;
+            if (random.nextBoolean()) {
+                requiredSkill = pickRandom(REQUIRED_SKILLS, random);
+            } else {
+                requiredSkill = pickRandom(OPTIONAL_SKILLS, random);
+            }
             shiftRepository.persist(new Shift(timeslotStart, timeslotEnd, location, requiredSkill));
         }
-
     }
 
     private <T> T pickRandom(T[] source, Random random) {
@@ -232,7 +188,7 @@ public class DemoDataGenerator {
                 item.append(partArray[(i / sizePerIncrement) % partArray.length]);
                 sizePerIncrement *= partArray.length;
             }
-            item.delete(0, 1);
+            item.delete(0,1);
             out.add(item.toString());
         }
         return out;
