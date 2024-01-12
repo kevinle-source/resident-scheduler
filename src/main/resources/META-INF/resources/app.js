@@ -215,7 +215,9 @@ function refreshSchedule() {
                     style: "background-color: #EF292999"
                 });
             } else {
-                const skillColor = (shift.employee.skillSet.indexOf(shift.requiredSkill) === -1? '#ef2929' : '#8ae234');
+
+                const skillColor = (shift.requiredSkill.includes(shift.employee.skillSet) === false? '#ef2929' : '#8ae234');
+                // const skillColor = (shift.employee.skillSet.indexOf(shift.requiredSkill) === -1? '#ef2929' : '#8ae234');
                 const byEmployeeShiftElement = $('<div class="card-body p-2"/>')
                         .append($(`<h5 class="card-title mb-2"/>)`)
                                 .append(shift.location))

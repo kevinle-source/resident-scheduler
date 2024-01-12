@@ -156,44 +156,97 @@ public class DemoDataGenerator {
 
             }
 
-            generateShiftsForDay(date, random);
+            // generateShiftsForDay(date, random);
         }
+
+        List<Shift> shiftsList = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+
+        for (int i = 0; i < 3; i++) {
+            LocalDateTime nextMon = now.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+            Shift shift = new Shift(nextMon.plusDays(i*7).withHour(17),nextMon.plusDays(1+i*7).withHour(8),"Primary Call","PGY-3 PGY-4");
+            Shift shift_back = new Shift(nextMon.plusDays(i*7).withHour(17),nextMon.plusDays(1+i*7).withHour(8),"Secondary Call","PGY-3 PGY-4");
+            shiftsList.add(shift);
+            shiftsList.add(shift_back);
+            
+        }
+
+        for (int i = 0; i < 3; i++) {
+            LocalDateTime nextTues = now.with(TemporalAdjusters.next(DayOfWeek.TUESDAY));
+            Shift shift = new Shift(nextTues.plusDays(i*7).withHour(17),nextTues.plusDays(1+i*7).withHour(8),"Primary Call","PGY-2");
+            Shift shift_back = new Shift(nextTues.plusDays(i*7).withHour(17),nextTues.plusDays(1+i*7).withHour(8),"Secondary Call","PGY-3 PGY-4");
+            shiftsList.add(shift);
+            shiftsList.add(shift_back);
+            
+        }
+
+        for (int i = 0; i < 3; i++) {
+            LocalDateTime nextWed = now.with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY));
+            Shift shift = new Shift(nextWed.plusDays(i*7).withHour(17),nextWed.plusDays(1+i*7).withHour(8),"Primary Call","PGY-2");
+            Shift shift_back = new Shift(nextWed.plusDays(i*7).withHour(17),nextWed.plusDays(1+i*7).withHour(8),"Secondary Call","PGY-3 PGY-4");
+            shiftsList.add(shift);
+            shiftsList.add(shift_back);
+            
+        }
+
+        for (int i = 0; i < 3; i++) {
+            LocalDateTime nextThurs = now.with(TemporalAdjusters.next(DayOfWeek.THURSDAY));
+            Shift shift = new Shift(nextThurs.plusDays(i*7).withHour(17),nextThurs.plusDays(1+i*7).withHour(8),"Primary Call","PGY-2");
+            Shift shift_back = new Shift(nextThurs.plusDays(i*7).withHour(17),nextThurs.plusDays(1+i*7).withHour(8),"Secondary Call","PGY-3 PGY-4");
+            shiftsList.add(shift);
+            shiftsList.add(shift_back);
+            
+        }
+
+        for (int i = 0; i < 3; i++) {
+            LocalDateTime nextFri = now.with(TemporalAdjusters.next(DayOfWeek.FRIDAY));
+            Shift shift = new Shift(nextFri.plusDays(i*7).withHour(17),nextFri.plusDays(3+i*7).withHour(8),"Primary Call","PGY-2");
+            Shift shift_back = new Shift(nextFri.plusDays(i*7).withHour(17),nextFri.plusDays(3+i*7).withHour(8),"Secondary Call","PGY-3 PGY-4");
+            shiftsList.add(shift);
+            shiftsList.add(shift_back);
+            
+        }
+
+        for (Shift shift: shiftsList) {
+            shiftRepository.persist(shift);
+        }
+
 
 
     }
 
 
-    private void generateShiftsForDay(LocalDate date, Random random) {
-        for (String location : LOCATIONS) {
-            List<LocalTime> shiftStartTimeList = locationToShiftStartTimeListMap.get(location);
-            for (LocalTime shiftStartTime : shiftStartTimeList) {
-                LocalDateTime shiftStartDateTime = date.atTime(shiftStartTime);
-                LocalDateTime shiftEndDateTime = shiftStartDateTime.plus(SHIFT_LENGTH);
-                generateShiftForTimeslot(shiftStartDateTime, shiftEndDateTime, location, random);
-            }
-        }
-    }
+    // private void generateShiftsForDay(LocalDate date, Random random) {
+    //     for (String location : LOCATIONS) {
+    //         List<LocalTime> shiftStartTimeList = locationToShiftStartTimeListMap.get(location);
+    //         for (LocalTime shiftStartTime : shiftStartTimeList) {
+    //             LocalDateTime shiftStartDateTime = date.atTime(shiftStartTime);
+    //             LocalDateTime shiftEndDateTime = shiftStartDateTime.plus(SHIFT_LENGTH);
+    //             generateShiftForTimeslot(shiftStartDateTime, shiftEndDateTime, location, random);
+    //         }
+    //     }
+    // }
 
-    private void generateShiftForTimeslot(LocalDateTime timeslotStart, LocalDateTime timeslotEnd, String location,
-            Random random) {
-        int shiftCount = 1;
+    // private void generateShiftForTimeslot(LocalDateTime timeslotStart, LocalDateTime timeslotEnd, String location,
+    //         Random random) {
+    //     int shiftCount = 1;
 
-        if (random.nextDouble() > 0.9) {
-            // generate an extra shift
-            shiftCount++;
-        }
+    //     if (random.nextDouble() > 0.9) {
+    //         // generate an extra shift
+    //         shiftCount++;
+    //     }
 
-        for (int i = 0; i < shiftCount; i++) {
-            String requiredSkill = "PGY-4";
-            // if (random.nextBoolean()) {
-            //     requiredSkill = pickRandom(REQUIRED_SKILLS, random);
-            // } else {
-            //     requiredSkill = pickRandom(OPTIONAL_SKILLS, random);
-            // }
-            shiftRepository.persist(new Shift(timeslotStart, timeslotEnd, location, requiredSkill));
-        }
+    //     for (int i = 0; i < shiftCount; i++) {
+    //         String requiredSkill = "PGY-4";
+    //         // if (random.nextBoolean()) {
+    //         //     requiredSkill = pickRandom(REQUIRED_SKILLS, random);
+    //         // } else {
+    //         //     requiredSkill = pickRandom(OPTIONAL_SKILLS, random);
+    //         // }
+    //         shiftRepository.persist(new Shift(timeslotStart, timeslotEnd, location, requiredSkill));
+    //     }
 
-    }
+    // }
 
     private <T> T pickRandom(T[] source, Random random) {
         return source[random.nextInt(source.length)];
@@ -215,40 +268,20 @@ public class DemoDataGenerator {
         return new HashSet<>(items.subList(0, numOfItems + 1));
     }
 
-    private List<String> joinAllCombinations(String[]... partArrays) {
-        int size = 1;
-        for (String[] partArray : partArrays) {
-            size *= partArray.length;
-        }
-        List<String> out = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            StringBuilder item = new StringBuilder();
-            int sizePerIncrement = 1;
-            for (String[] partArray : partArrays) {
-                item.append(' ');
-                item.append(partArray[(i / sizePerIncrement) % partArray.length]);
-                sizePerIncrement *= partArray.length;
-            }
-            item.delete(0, 1);
-            out.add(item.toString());
-        }
-        return out;
-    }
+    // public void generateDraftShifts(ScheduleState scheduleState) {
+    //     List<Employee> employeeList = employeeRepository.listAll();
+    //     Random random = new Random(0);
 
-    public void generateDraftShifts(ScheduleState scheduleState) {
-        List<Employee> employeeList = employeeRepository.listAll();
-        Random random = new Random(0);
+    //     for (int i = 0; i < scheduleState.getPublishLength(); i++) {
+    //         Set<Employee> employeesWithAvailabitiesOnDay = pickSubset(employeeList, random, 4, 3, 2, 1);
+    //         LocalDate date = scheduleState.getFirstDraftDate().plusDays(scheduleState.getPublishLength() + i);
+    //         for (Employee employee : employeesWithAvailabitiesOnDay) {
+    //             AvailabilityType availabilityType = pickRandom(AvailabilityType.values(), random);
+    //             availabilityRepository.persist(new Availability(employee, date, availabilityType));
+    //         }
 
-        for (int i = 0; i < scheduleState.getPublishLength(); i++) {
-            Set<Employee> employeesWithAvailabitiesOnDay = pickSubset(employeeList, random, 4, 3, 2, 1);
-            LocalDate date = scheduleState.getFirstDraftDate().plusDays(scheduleState.getPublishLength() + i);
-            for (Employee employee : employeesWithAvailabitiesOnDay) {
-                AvailabilityType availabilityType = pickRandom(AvailabilityType.values(), random);
-                availabilityRepository.persist(new Availability(employee, date, availabilityType));
-            }
-
-            generateShiftsForDay(date, random);
-        }
-    }
+    //         generateShiftsForDay(date, random);
+    //     }
+    // }
 
 }
