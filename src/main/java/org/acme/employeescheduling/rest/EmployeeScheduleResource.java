@@ -83,7 +83,7 @@ public class EmployeeScheduleResource {
         scheduleState.setLastHistoricDate(newHistoricDate);
         scheduleState.setFirstDraftDate(newDraftDate);
 
-        // dataGenerator.generateDraftShifts(scheduleState);
+        // dataGenerator.generateShifts();
     }
 
     @POST
