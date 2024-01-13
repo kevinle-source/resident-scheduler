@@ -2,7 +2,10 @@ package org.acme.employeescheduling.solver;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.lang.Math;
 
+import org.acme.employeescheduling.domain.EmployeeSchedule;
+import org.acme.employeescheduling.domain.Employee;
 import org.acme.employeescheduling.domain.Availability;
 import org.acme.employeescheduling.domain.AvailabilityType;
 import org.acme.employeescheduling.domain.Shift;
@@ -10,6 +13,7 @@ import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
 import org.optaplanner.core.api.score.stream.Constraint;
 import org.optaplanner.core.api.score.stream.ConstraintFactory;
 import org.optaplanner.core.api.score.stream.ConstraintProvider;
+import org.optaplanner.core.api.score.stream.ConstraintCollectors;
 import org.optaplanner.core.api.score.stream.Joiners;
 
 public class EmployeeSchedulingConstraintProvider implements ConstraintProvider {
@@ -37,9 +41,12 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 noOverlappingShifts(constraintFactory),
                 atLeast10HoursBetweenTwoShifts(constraintFactory),
                 oneShiftPerDay(constraintFactory),
-                unavailableEmployee(constraintFactory),
+                unavailableEmployeeStart(constraintFactory),
+                unavailableEmployeeEnd(constraintFactory),
                 desiredDayForEmployee(constraintFactory),
                 undesiredDayForEmployee(constraintFactory),
+                minimumShift(constraintFactory),
+                lookingHours(constraintFactory),
         };
     }
 
@@ -79,7 +86,7 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 .asConstraint("Max one shift per day");
     }
 
-    Constraint unavailableEmployee(ConstraintFactory constraintFactory) {
+    Constraint unavailableEmployeeStart(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Shift.class)
                 .join(Availability.class, Joiners.equal((Shift shift) -> shift.getStart().toLocalDate(), Availability::getDate),
                         Joiners.equal(Shift::getEmployee, Availability::getEmployee))
@@ -87,6 +94,16 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 .penalize(HardSoftScore.ONE_HARD,
                         (shift, availability) -> getShiftDurationInMinutes(shift))
                 .asConstraint("Unavailable employee");
+    }
+
+    Constraint unavailableEmployeeEnd(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(Shift.class)
+                .join(Availability.class, Joiners.equal((Shift shift) -> shift.getEnd().toLocalDate(), Availability::getDate),
+                        Joiners.equal(Shift::getEmployee, Availability::getEmployee))
+                .filter((shift, availability) -> availability.getAvailabilityType() == AvailabilityType.UNAVAILABLE)
+                .penalize(HardSoftScore.ONE_HARD,
+                        (shift, availability) -> getShiftDurationInMinutes(shift))
+                .asConstraint("Unavailable employee end");
     }
 
     Constraint desiredDayForEmployee(ConstraintFactory constraintFactory) {
@@ -107,6 +124,25 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 .penalize(HardSoftScore.ONE_SOFT,
                         (shift, availability) -> getShiftDurationInMinutes(shift))
                 .asConstraint("Undesired day for employee");
+    }
+
+    Constraint minimumShift(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(Shift.class)
+                .groupBy(Shift::getEmployee,ConstraintCollectors.count())
+                .penalize(HardSoftScore.ONE_HARD, (employee, count) -> {
+                        return (Math.abs(count - 3));})
+                .asConstraint("minimum one");
+    }
+
+    Constraint lookingHours(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(Shift.class)
+        .filter((shift) -> shift.getIsWeekend() == true)
+        .groupBy(Shift::getEmployee, ConstraintCollectors.count())
+        .penalize(HardSoftScore.ONE_HARD, (employee,count) -> {
+                return (Math.abs(count - 1));
+        })
+        .asConstraint("yuppy");
+
     }
 
 }

@@ -46,6 +46,8 @@ public class DemoDataGenerator {
         LARGE
     }
 
+    public int publishCounter = 0;
+
     static final String[] FIRST_NAMES = { "Amy", "Beth", "Chad", "Dan", "Elsa", "Flo", "Gus", "Hugo", "Ivy", "Jay" };
     static final String[] LAST_NAMES = { "Cole", "Fox", "Green", "Jones", "King", "Li", "Poe", "Rye", "Smith", "Watt" };
     static final String[] NAMES = { "Khalid Aldaas", "Uzo Davis Anugo", "Rebecca Li", "Ryan Machiele",
@@ -81,7 +83,7 @@ public class DemoDataGenerator {
 
     @Transactional
     public void generateDemoData(@Observes StartupEvent startupEvent) {
-        final int INITIAL_ROSTER_LENGTH_IN_DAYS = 14;
+        final int INITIAL_ROSTER_LENGTH_IN_DAYS = 28;
         final LocalDate START_DATE = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
 
         ScheduleState scheduleState = new ScheduleState();
@@ -105,46 +107,13 @@ public class DemoDataGenerator {
             return;
         }
 
-        // List<String> namePermutations = joinAllCombinations(FIRST_NAMES, LAST_NAMES);
-        // Collections.shuffle(namePermutations, random);
-
-        // List<String> namePermutations = NAMES;
-        // Collections.shuffle(namePermutations, random);
-
-        // List<String> namePermutations = new ArrayList<>();
-        // namePermutations.add("Khalid Aldaas");
-        // namePermutations.add("Uzo Davis Anugo");
-        // namePermutations.add("Rebecca Li");
-        // namePermutations.add("Ryan Machiele");
-        // namePermutations.add("Vikram Ponnusamy");
-        // namePermutations.add("Luke Ford");
-        // namePermutations.add("Allison Harmel");
-        // namePermutations.add("Patrick Le");
-        // namePermutations.add("Brian Wogu");
-        // namePermutations.add("Bryce DeChamplain");
-        // namePermutations.add("Pooja Shah");
-        // namePermutations.add("Vincent Tang");
-        // namePermutations.add("Jason Zehden");
-        // namePermutations.add("Dipen Kumar");
-        // namePermutations.add("Karen Lee");
-
         List<Employee> employeeList = new ArrayList<>();
-        // for (int i = 0; i < 12; i++) {
-        // Set<String> skills = pickSubset(List.of(OPTIONAL_SKILLS), random, 1);
-        // // String skills = YEARS[i];
-        // skills.add(pickRandom(REQUIRED_SKILLS, random));
-        // Employee employee = new Employee(namePermutations.get(i), skills);
-        // employeeRepository.persist(employee);
-        // employeeList.add(employee);
-        // }
 
         for (int i = 0; i < NAMES.length; i++) {
             Employee employee = new Employee(NAMES[i], YEARS[i]);
 
             employeeRepository.persist(employee);
             employeeList.add(employee);
-            // System.out.println(employee.getName());
-            // System.out.println(employee.getSkillSet());
         }
 
         for (int i = 0; i < INITIAL_ROSTER_LENGTH_IN_DAYS; i++) {
@@ -156,111 +125,76 @@ public class DemoDataGenerator {
 
             }
 
-            
         }
         generateShifts();
 
-    
-
     }
-
-    // private void generateShiftsForDay(LocalDate date, Random random) {
-    // for (String location : LOCATIONS) {
-    // List<LocalTime> shiftStartTimeList =
-    // locationToShiftStartTimeListMap.get(location);
-    // for (LocalTime shiftStartTime : shiftStartTimeList) {
-    // LocalDateTime shiftStartDateTime = date.atTime(shiftStartTime);
-    // LocalDateTime shiftEndDateTime = shiftStartDateTime.plus(SHIFT_LENGTH);
-    // generateShiftForTimeslot(shiftStartDateTime, shiftEndDateTime, location,
-    // random);
-    // }
-    // }
-    // }
-
-    // private void generateShiftForTimeslot(LocalDateTime timeslotStart,
-    // LocalDateTime timeslotEnd, String location,
-    // Random random) {
-    // int shiftCount = 1;
-
-    // if (random.nextDouble() > 0.9) {
-    // // generate an extra shift
-    // shiftCount++;
-    // }
-
-    // for (int i = 0; i < shiftCount; i++) {
-    // String requiredSkill = "PGY-4";
-    // // if (random.nextBoolean()) {
-    // // requiredSkill = pickRandom(REQUIRED_SKILLS, random);
-    // // } else {
-    // // requiredSkill = pickRandom(OPTIONAL_SKILLS, random);
-    // // }
-    // shiftRepository.persist(new Shift(timeslotStart, timeslotEnd, location,
-    // requiredSkill));
-    // }
-
-    // }
 
     public void generateShifts() {
         List<Shift> shiftsList = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 12; i++) {
             LocalDateTime nextMon = now.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
-            Shift shift = new Shift(nextMon.plusDays(i * 7).withHour(17), nextMon.plusDays(1 + i * 7).withHour(8),
-                    "Primary Call", "PGY-3, PGY-4");
-            Shift shift_back = new Shift(nextMon.plusDays(i * 7).withHour(17),
-                    nextMon.plusDays(1 + i * 7).withHour(8), "Secondary Call", "PGY-3, PGY-4");
+            Shift shift = new Shift(nextMon.plusDays((14 * publishCounter) + i * 7).withHour(17),
+                    nextMon.plusDays((14 * publishCounter) + 1 + i * 7).withHour(8),
+                    "Primary Call", "PGY-3, PGY-4",15,false,true);
+            Shift shift_back = new Shift(nextMon.plusDays((14 * publishCounter) + i * 7).withHour(17),
+                    nextMon.plusDays((14 * publishCounter) + 1 + i * 7).withHour(8), "Secondary Call", "PGY-3, PGY-4",15,false,false);
             shiftsList.add(shift);
             shiftsList.add(shift_back);
 
         }
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 12; i++) {
             LocalDateTime nextTues = now.with(TemporalAdjusters.next(DayOfWeek.TUESDAY));
-            Shift shift = new Shift(nextTues.plusDays(i * 7).withHour(17), nextTues.plusDays(1 + i * 7).withHour(8),
-                    "Primary Call", "PGY-2");
-            Shift shift_back = new Shift(nextTues.plusDays(i * 7).withHour(17),
-                    nextTues.plusDays(1 + i * 7).withHour(8), "Secondary Call", "PGY-3, PGY-4");
+            Shift shift = new Shift(nextTues.plusDays((14 * publishCounter) + i * 7).withHour(17),
+                    nextTues.plusDays((14 * publishCounter) + 1 + i * 7).withHour(8),
+                    "Primary Call", "PGY-2",15,false,true);
+            Shift shift_back = new Shift(nextTues.plusDays((14 * publishCounter) + i * 7).withHour(17),
+                    nextTues.plusDays((14 * publishCounter) + 1 + i * 7).withHour(8), "Secondary Call", "PGY-3, PGY-4",15,false,false);
             shiftsList.add(shift);
             shiftsList.add(shift_back);
 
         }
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 12; i++) {
             LocalDateTime nextWed = now.with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY));
-            Shift shift = new Shift(nextWed.plusDays(i * 7).withHour(17), nextWed.plusDays(1 + i * 7).withHour(8),
-                    "Primary Call", "PGY-2");
-            Shift shift_back = new Shift(nextWed.plusDays(i * 7).withHour(17),
-                    nextWed.plusDays(1 + i * 7).withHour(8), "Secondary Call", "PGY-3, PGY-4");
+            Shift shift = new Shift(nextWed.plusDays((14 * publishCounter) + i * 7).withHour(17),
+                    nextWed.plusDays((14 * publishCounter) + 1 + i * 7).withHour(8),
+                    "Primary Call", "PGY-2",15,false,true);
+            Shift shift_back = new Shift(nextWed.plusDays((14 * publishCounter) + i * 7).withHour(17),
+                    nextWed.plusDays((14 * publishCounter) + 1 + i * 7).withHour(8), "Secondary Call", "PGY-3, PGY-4",15,false,false);
             shiftsList.add(shift);
             shiftsList.add(shift_back);
 
         }
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 12; i++) {
             LocalDateTime nextThurs = now.with(TemporalAdjusters.next(DayOfWeek.THURSDAY));
-            Shift shift = new Shift(nextThurs.plusDays(i * 7).withHour(17),
-                    nextThurs.plusDays(1 + i * 7).withHour(8), "Primary Call", "PGY-2");
-            Shift shift_back = new Shift(nextThurs.plusDays(i * 7).withHour(17),
-                    nextThurs.plusDays(1 + i * 7).withHour(8), "Secondary Call", "PGY-3, PGY-4");
+            Shift shift = new Shift(nextThurs.plusDays((14 * publishCounter) +i * 7).withHour(17),
+                    nextThurs.plusDays((14 * publishCounter) +1 + i * 7).withHour(8), "Primary Call", "PGY-2",15,false,true);
+            Shift shift_back = new Shift(nextThurs.plusDays((14 * publishCounter) +i * 7).withHour(17),
+                    nextThurs.plusDays((14 * publishCounter)+1 + i * 7).withHour(8), "Secondary Call", "PGY-3, PGY-4",15,false,false);
             shiftsList.add(shift);
             shiftsList.add(shift_back);
 
         }
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 12; i++) {
             LocalDateTime nextFri = now.with(TemporalAdjusters.next(DayOfWeek.FRIDAY));
-            Shift shift = new Shift(nextFri.plusDays(i * 7).withHour(17), nextFri.plusDays(3 + i * 7).withHour(8),
-                    "Primary Call", "PGY-2");
-            Shift shift_back = new Shift(nextFri.plusDays(i * 7).withHour(17),
-                    nextFri.plusDays(3 + i * 7).withHour(8), "Secondary Call", "PGY-3, PGY-4");
+            Shift shift = new Shift(nextFri.plusDays((14 * publishCounter) +i * 7).withHour(17), nextFri.plusDays((14 * publishCounter) +3 + i * 7).withHour(8),
+                    "Primary Call", "PGY-2",63,true,true);
+            Shift shift_back = new Shift(nextFri.plusDays((14 * publishCounter) +i * 7).withHour(17),
+                    nextFri.plusDays((14 * publishCounter) +3 + i * 7).withHour(8), "Secondary Call", "PGY-3, PGY-4",63,true,false);
             shiftsList.add(shift);
             shiftsList.add(shift_back);
 
-
         }
 
-        for (Shift shift: shiftsList) {
+        publishCounter++;
+
+        for (Shift shift : shiftsList) {
             shiftRepository.persist(shift);
         }
 
@@ -285,26 +219,5 @@ public class DemoDataGenerator {
         Collections.shuffle(items, random);
         return new HashSet<>(items.subList(0, numOfItems + 1));
     }
-
-    // public void generateDraftShifts(ScheduleState scheduleState) {
-    // List<Employee> employeeList = employeeRepository.listAll();
-    // Random random = new Random(0);
-
-    // for (int i = 0; i < scheduleState.getPublishLength(); i++) {
-    // Set<Employee> employeesWithAvailabitiesOnDay = pickSubset(employeeList,
-    // random, 4, 3, 2, 1);
-    // LocalDate date =
-    // scheduleState.getFirstDraftDate().plusDays(scheduleState.getPublishLength() +
-    // i);
-    // for (Employee employee : employeesWithAvailabitiesOnDay) {
-    // AvailabilityType availabilityType = pickRandom(AvailabilityType.values(),
-    // random);
-    // availabilityRepository.persist(new Availability(employee, date,
-    // availabilityType));
-    // }
-
-    // generateShiftsForDay(date, random);
-    // }
-    // }
 
 }

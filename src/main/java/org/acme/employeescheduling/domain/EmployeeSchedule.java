@@ -1,6 +1,6 @@
 package org.acme.employeescheduling.domain;
-
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.optaplanner.core.api.domain.solution.PlanningEntityCollectionProperty;
 import org.optaplanner.core.api.domain.solution.PlanningScore;
@@ -86,4 +86,6 @@ public class EmployeeSchedule {
     public void setSolverStatus(SolverStatus solverStatus) {
         this.solverStatus = solverStatus;
     }
+
+
 }

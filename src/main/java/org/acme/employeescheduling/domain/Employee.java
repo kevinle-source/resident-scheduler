@@ -23,6 +23,9 @@ public class Employee {
     @Column
     String skillSet;
 
+    @Column
+    int numShifts;
+
     public Employee() {
 
     }
@@ -35,6 +38,7 @@ public class Employee {
     public Employee(String name, String skillSet) {
         this.name = name;
         this.skillSet = skillSet;
+        this.numShifts = 0;
     }
 
     public String getName() {
@@ -53,6 +57,10 @@ public class Employee {
         return skillSet;
     }
 
+    // public int getNumShifts() {
+    //     return numShifts;
+    // }
+
     // public void setSkillSet(Set<String> skillSet) {
     //     this.skillSet = skillSet;
     // }
@@ -60,6 +68,10 @@ public class Employee {
     public void setSkillSet(String skillSet) {
         this.skillSet = skillSet;
     }
+
+    // public void addNumShifts() {
+    //     this.numShifts++;
+    // }
 
     @Override
     public String toString() {
