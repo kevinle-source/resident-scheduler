@@ -47,6 +47,8 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
                 undesiredDayForEmployee(constraintFactory),
                 minimumShift(constraintFactory),
                 lookingHours(constraintFactory),
+                seniorHours(constraintFactory),
+                seniorShifts(constraintFactory),
         };
     }
 
@@ -129,8 +131,10 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
     Constraint minimumShift(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Shift.class)
                 .groupBy(Shift::getEmployee,ConstraintCollectors.count())
-                .penalize(HardSoftScore.ONE_HARD, (employee, count) -> {
-                        return (Math.abs(count - 3));})
+                .penalize(HardSoftScore.ONE_SOFT, (employee, count) -> {
+                        return (Math.abs(count - 10) * 1200);})
+                // .penalize(HardSoftScore.ONE_HARD, (employee, count) -> {
+                //         return (Math.abs(count - 10));})
                 .asConstraint("minimum one");
     }
 
@@ -138,10 +142,32 @@ public class EmployeeSchedulingConstraintProvider implements ConstraintProvider 
         return constraintFactory.forEach(Shift.class)
         .filter((shift) -> shift.getIsWeekend() == true)
         .groupBy(Shift::getEmployee, ConstraintCollectors.count())
-        .penalize(HardSoftScore.ONE_HARD, (employee,count) -> {
-                return (Math.abs(count - 1));
-        })
+        .penalize(HardSoftScore.ONE_SOFT, (employee,count) -> {
+                return (Math.abs(count - 1) * 3780);})
+        // .penalize(HardSoftScore.ONE_HARD, (employee,count) -> {
+        //         return (Math.abs(count - 2));
+        // })
         .asConstraint("yuppy");
+
+    }
+
+    Constraint seniorHours(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(Shift.class)
+                .filter((shift) -> shift.getRequiredSkill() == "PGY-3, PGY-4")
+                .groupBy(Shift::getEmployee,ConstraintCollectors.count(),ConstraintCollectors.sum(Shift::getHours))
+                .filter((a,b,c) -> c > 150)
+                .penalize(HardSoftScore.ONE_HARD)
+                .asConstraint("senior Hours");
+
+    }
+
+    Constraint seniorShifts(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(Shift.class)
+                .filter((shift) -> shift.getRequiredSkill() == "PGY-3, PGY-4")
+                .groupBy(Shift::getEmployee,ConstraintCollectors.count())
+                .filter((a,b) -> b > 7)
+                .penalize(HardSoftScore.ONE_HARD)
+                .asConstraint("senior Shifts");
 
     }
 

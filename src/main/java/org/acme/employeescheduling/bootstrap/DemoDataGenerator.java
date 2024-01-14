@@ -46,6 +46,7 @@ public class DemoDataGenerator {
         LARGE
     }
 
+    public int weeks = 8;
     public int publishCounter = 0;
 
     static final String[] FIRST_NAMES = { "Amy", "Beth", "Chad", "Dan", "Elsa", "Flo", "Gus", "Hugo", "Ivy", "Jay" };
@@ -83,7 +84,7 @@ public class DemoDataGenerator {
 
     @Transactional
     public void generateDemoData(@Observes StartupEvent startupEvent) {
-        final int INITIAL_ROSTER_LENGTH_IN_DAYS = 28;
+        final int INITIAL_ROSTER_LENGTH_IN_DAYS = 7 * weeks;
         final LocalDate START_DATE = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
 
         ScheduleState scheduleState = new ScheduleState();
@@ -116,16 +117,16 @@ public class DemoDataGenerator {
             employeeList.add(employee);
         }
 
-        for (int i = 0; i < INITIAL_ROSTER_LENGTH_IN_DAYS; i++) {
-            Set<Employee> employeesWithAvailabitiesOnDay = pickSubset(employeeList, random, 4, 3, 2, 1);
-            LocalDate date = START_DATE.plusDays(i);
-            for (Employee employee : employeesWithAvailabitiesOnDay) {
-                AvailabilityType availabilityType = pickRandom(AvailabilityType.values(), random);
-                availabilityRepository.persist(new Availability(employee, date, availabilityType));
+        // for (int i = 0; i < INITIAL_ROSTER_LENGTH_IN_DAYS; i++) {
+        //     Set<Employee> employeesWithAvailabitiesOnDay = pickSubset(employeeList, random, 4, 3, 2, 1);
+        //     LocalDate date = START_DATE.plusDays(i);
+        //     for (Employee employee : employeesWithAvailabitiesOnDay) {
+        //         AvailabilityType availabilityType = pickRandom(AvailabilityType.values(), random);
+        //         availabilityRepository.persist(new Availability(employee, date, availabilityType));
 
-            }
+        //     }
 
-        }
+        // }
         generateShifts();
 
     }
@@ -134,7 +135,7 @@ public class DemoDataGenerator {
         List<Shift> shiftsList = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
 
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < weeks; i++) {
             LocalDateTime nextMon = now.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
             Shift shift = new Shift(nextMon.plusDays((14 * publishCounter) + i * 7).withHour(17),
                     nextMon.plusDays((14 * publishCounter) + 1 + i * 7).withHour(8),
@@ -146,7 +147,7 @@ public class DemoDataGenerator {
 
         }
 
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < weeks; i++) {
             LocalDateTime nextTues = now.with(TemporalAdjusters.next(DayOfWeek.TUESDAY));
             Shift shift = new Shift(nextTues.plusDays((14 * publishCounter) + i * 7).withHour(17),
                     nextTues.plusDays((14 * publishCounter) + 1 + i * 7).withHour(8),
@@ -158,7 +159,7 @@ public class DemoDataGenerator {
 
         }
 
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < weeks; i++) {
             LocalDateTime nextWed = now.with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY));
             Shift shift = new Shift(nextWed.plusDays((14 * publishCounter) + i * 7).withHour(17),
                     nextWed.plusDays((14 * publishCounter) + 1 + i * 7).withHour(8),
@@ -170,7 +171,7 @@ public class DemoDataGenerator {
 
         }
 
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < weeks; i++) {
             LocalDateTime nextThurs = now.with(TemporalAdjusters.next(DayOfWeek.THURSDAY));
             Shift shift = new Shift(nextThurs.plusDays((14 * publishCounter) +i * 7).withHour(17),
                     nextThurs.plusDays((14 * publishCounter) +1 + i * 7).withHour(8), "Primary Call", "PGY-2",15,false,true);
@@ -181,7 +182,7 @@ public class DemoDataGenerator {
 
         }
 
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < weeks; i++) {
             LocalDateTime nextFri = now.with(TemporalAdjusters.next(DayOfWeek.FRIDAY));
             Shift shift = new Shift(nextFri.plusDays((14 * publishCounter) +i * 7).withHour(17), nextFri.plusDays((14 * publishCounter) +3 + i * 7).withHour(8),
                     "Primary Call", "PGY-2",63,true,true);
